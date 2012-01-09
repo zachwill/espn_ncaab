@@ -3,6 +3,7 @@
   "author": "Zach Williams",
   "dependencies": {
     "coffee-script": "1.x.x",
+    "mongous": "*",
     "underscore": "*",
     "zombie": "*"
   }

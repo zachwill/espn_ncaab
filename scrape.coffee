@@ -3,6 +3,9 @@ fs = require 'fs'
 repl = require 'repl'
 zombie = require 'zombie'
 
+# Database stuff.
+db = require('mongous').Mongous
+
 # Read in the static `Zepto.js` file synchronously. It will eventually be
 # evaluated by a `Zombie.js` browser instance.
 zepto = fs.readFileSync 'zepto.js', 'utf-8', (error, data) -> data
@@ -63,7 +66,7 @@ class Game
 
   # The scrape method is a little convoluted since the `Zombie.js` requests are
   # being sent asynchronously.
-  scrape: (id) =>
+  scrape: (id) ->
     zombie.visit @url.plays, OPTIONS, (error, browser) =>
       @data.plays = @plays browser
       browser.visit @url.boxscore, (error, browser) =>
@@ -139,7 +142,10 @@ class Game
     data
 
   update_time: (time) ->
-    overall = @period * 20
+    if @period > 2
+      overall = (@period - 2) * 5 + 40
+    else
+      overall = @period * 20
     [minutes, seconds] = _(time.split(':')).map (value) -> +value
     minutes = overall - minutes
     if seconds isnt 0
@@ -155,6 +161,7 @@ class Game
 
 
 # Extend scraped game output against a default object.
+# TODO: Refactor this to a `Save` class without the large `original` object.
 class Output
   constructor: (refined={}) ->
     original =
