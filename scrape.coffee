@@ -54,20 +54,25 @@ class Day
 class Game
   constructor: (id) ->
     return if _.isEmpty id
+    @url =
+      boxscore: "boxscore?gameId=#{id}"
+      plays: "playbyplay?gameId=#{id}"
     @data = {}
-    @scrape(id)
-    return new Output(@data)
+    @period = 1
+    @scrape id
 
-  scrape: (id) ->
-    boxscore = "boxscore?gameId=#{id}"
-    plays = "playbyplay?gameId=#{id}"
-    zombie.visit plays, OPTIONS, @plays
+  scrape: (id) =>
+    zombie.visit @url.plays, OPTIONS, (error, browser) =>
+      @data.plays = @plays browser
 
-  plays: (error, browser) =>
+  boxscore: (error, browser) =>
+    $ = Zepto(browser)
+
+  plays: (browser) ->
     $ = Zepto(browser)
     rows = $('table.mod-pbp > tr')
     console.log rows.length
-    plays = rows.map (index, row) =>
+    rows.map (index, row) =>
       row = $(row)
       children = row.children()
       length = children.length
@@ -80,9 +85,8 @@ class Game
       if length is 4
         play = children.map @outcome
       else
-        play = children.map @official
+        play = children.map (index, element) -> element.innerHTML
       @create_play play, scored
-    @data.plays = plays
 
   outcome: (index, element) ->
     html = element.innerHTML
@@ -99,38 +103,49 @@ class Game
         home: home
     html
 
-  official: (index, element) ->
-    element.innerHTML
-
   create_play: (play, scored=false) ->
     official = null
     if play.length is 2
       official = true
       [time, text] = play
       [away, home, score] = [null, null, null]
+      if text.match('End of the')
+        update = true
     else if _.isString play[1]
       [time, away, score] = play
-      text = away
-      home = null
+      [text, home] = [away, null]
     else
       [time, score, home] = play
-      text = home
-      away = null
+      [text, away] = [home, null]
+    time = @update_time(time)
     data =
       action:
         scored: scored
         text: text
+      period: @period
       play:
         away: away
         home: home
         official: official
       score: score
       time: time
-    console.log data.action
+    if update then @period += 1
     data
 
-  boxscore: (error, browser) =>
-    $ = Zepto(browser)
+  update_time: (time) ->
+    overall = @period * 20
+    [minutes, seconds] = _(time.split(':')).map (value) -> +value
+    minutes = overall - minutes
+    if seconds isnt 0
+      seconds = 60 - seconds
+      minutes -= 1
+    if seconds < 10
+      seconds = '0' + seconds
+    elapsed = "#{minutes}:#{seconds}"
+    return {
+      elapsed: elapsed
+      game: time
+    }
 
 
 # Extend scraped game output against a default object.
