@@ -61,12 +61,18 @@ class Game
     @period = 1
     @scrape id
 
+  # The scrape method is a little convoluted since the `Zombie.js` requests are
+  # being sent asynchronously.
   scrape: (id) =>
     zombie.visit @url.plays, OPTIONS, (error, browser) =>
       @data.plays = @plays browser
+      browser.visit @url.boxscore, (error, browser) =>
+        @boxscore browser
 
-  boxscore: (error, browser) =>
+  boxscore: (browser) ->
     $ = Zepto(browser)
+    tables = $('.mod-data > tbody')
+    console.log "#{tables.length} tables"
 
   plays: (browser) ->
     $ = Zepto(browser)
