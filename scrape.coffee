@@ -116,7 +116,6 @@ class Game
       [time, score, home] = play
       text = home
       away = null
-    scored = _.isArray text.match(' made ')
     data =
       action:
         scored: scored
