@@ -1,5 +1,5 @@
-ESPN
-====
+ESPN NCAAB
+==========
 
 Asynchronously scrape ESPN college basketball scores using
 [Node.js](http://nodejs.org/), [CoffeeScript](http://coffeescript.org),
