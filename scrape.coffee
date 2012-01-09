@@ -30,8 +30,8 @@ class Zepto
 # scraped and saved to the database.
 class Day
   constructor: (date, @callback) ->
-    espn = "http://scores.espn.go.com/ncb/scoreboard?date=#{date}&confId=50"
-    zombie.visit espn, OPTIONS, @scrape
+    scores = "scoreboard?date=#{date}&confId=50"
+    zombie.visit scores, OPTIONS, @scrape
 
   scrape: (error, browser) =>
     $ = Zepto(browser)
