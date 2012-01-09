@@ -1,0 +1,181 @@
+{
+  "attendance": 3888,
+  "conference": {
+    "game": true,
+    "name": "Sun Belt"
+  },
+  "date": {
+    "epoch": 1326859200000,
+    "json": "2012-01-18T04:00:00.000Z",
+    "proper": "January 7, 2012 20:00",
+    "string": "January 7, 2012",
+    "time": "8:00 PM ET"
+  },
+  "espn": "320072031",
+  "final": {
+    "away": 38,
+    "difference": 2,
+    "home": 40
+  },
+  "half": {
+    "away": 20,
+    "difference": 2,
+    "home": 22
+  },
+  "location": "Jack Stephens Center, Little Rock, AR",
+  "officials": [
+    "Brad Ferrie",
+    "Alan Cosby",
+    "Jose Carrion"
+  ],
+  "overtime": false,
+  "plays": [
+    {
+      "action": {
+        "score": false,
+        "text": "Michael Javes missed Jumper."
+      },
+      "period": 1,
+      "play": {
+        "away": null,
+        "home": "Michael Javes missed Jumper.",
+        "official": null
+      },
+      "score": {
+        "away": 0,
+        "difference": 0,
+        "home": 0
+      },
+      "time": {
+        "elapsed": "0:29",
+        "game": "19:31"
+      }
+    },
+    {
+      "action": {
+        "score": true,
+        "text": "Chuck Guy made Jumper."
+      },
+      "period": 1,
+      "play": {
+        "away": null,
+        "home": "Chuck Guy made Jumper.",
+        "official": null
+      },
+      "score": {
+        "away": 0,
+        "difference": 2,
+        "home": 2
+      },
+      "time": {
+        "elapsed": "2:12",
+        "game": "17:48"
+      }
+    }
+  ],
+  "players": {
+    "away": [
+      {
+        "name": "Kore White",
+        "position": "F",
+        "starter": true,
+        "stats": {
+          "ast": 1,
+          "blk": 0,
+          "fg": {
+            "a": 12,
+            "m": 7
+          },
+          "ft": {
+            "a": 4,
+            "m": 3
+          },
+          "min": 32,
+          "pf": 3,
+          "pts": 17,
+          "reb": {
+            "o": 2,
+            "total": 7
+          },
+          "stl": 1,
+          "three": {
+            "a": 0,
+            "m": 0
+          },
+        }
+      },
+      {
+        
+      }
+    ],
+    "home": [
+      {
+        
+      },
+      {
+        
+      }
+    ]
+  },
+  "teams": {
+    "away": {
+      "abbrev": "FAU",
+      "name": "Florida Atlantic"
+    },
+    "home": {
+      "abbrev": "UALR",
+      "name": "Arkansas-Little Rock"
+    }
+  },
+  "totals": {
+    "away": {
+      "ast": 4,
+      "blk": 3,
+      "fg": {
+        "a": 44,
+        "m": 13
+      },
+      "ft": {
+        "a": 19,
+        "m": 13
+      },
+      "pf": 14,
+      "pts": 40,
+      "reb": {
+        "o": 9,
+        "total": 23
+      },
+      "stl": 7,
+      "three": {
+        "a": 14,
+        "m": 1
+      },
+      "to": 14
+    },
+    "home": {
+      "ast": 9,
+      "blk": 4,
+      "fg": {
+        "a": 46,
+        "m": 15
+      },
+      "ft": {
+        "a": 8,
+        "m": 6
+      },
+      "pf": 19,
+      "pts": 38,
+      "reb": {
+        "o": 8,
+        "total": 27
+      },
+      "stl": 5,
+      "three": {
+        "a": 14,
+        "m": 2
+      },
+      "to": 18
+    }
+  },
+  "winner": "home"
+}
