@@ -55,7 +55,8 @@ class Game
   constructor: (id) ->
     return if _.isEmpty id
     @data = {}
-    @scrape id
+    @scrape(id)
+    return new Output(@data)
 
   scrape: (id) ->
     boxscore = "boxscore?gameId=#{id}"
@@ -66,6 +67,68 @@ class Game
     $ = Zepto(browser)
     rows = $('table.mod-pbp > tr')
     console.log rows.length
+    plays = rows.map (index, row) =>
+      row = $(row)
+      children = row.children()
+      length = children.length
+      bold = children.find('b')
+      if not _.isEmpty bold
+        text = bold.text()
+        bold.parent().append(text).end().remove()
+        if length is 4
+          scored = true
+      if length is 4
+        play = children.map @outcome
+      else
+        play = children.map @official
+      @create_play play, scored
+    @data.plays = plays
+
+  outcome: (index, element) ->
+    html = element.innerHTML
+    if index is 0
+      return html
+    else if not _.isEmpty html.match('&nbsp;')
+      html = null
+    else if not _.isEmpty html.match(/[0-9]/)
+      [away, home] = html.split('-')
+      diff = Math.abs(away - home)
+      html =
+        away: away
+        diffence: diff
+        home: home
+    html
+
+  official: (index, element) ->
+    element.innerHTML
+
+  create_play: (play, scored=false) ->
+    official = null
+    if play.length is 2
+      official = true
+      [time, text] = play
+      [away, home, score] = [null, null, null]
+    else if _.isString play[1]
+      [time, away, score] = play
+      text = away
+      home = null
+    else
+      [time, score, home] = play
+      text = home
+      away = null
+    scored = _.isArray text.match(' made ')
+    data =
+      action:
+        scored: scored
+        text: text
+      play:
+        away: away
+        home: home
+        official: official
+      score: score
+      time: time
+    console.log data.action
+    data
 
   boxscore: (error, browser) =>
     $ = Zepto(browser)
