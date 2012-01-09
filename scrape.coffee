@@ -1,5 +1,6 @@
 _ = require 'underscore'
 fs = require 'fs'
+repl = require 'repl'
 zombie = require 'zombie'
 
 # Read in the static `Zepto.js` file synchronously. It will eventually be
@@ -14,7 +15,7 @@ OPTIONS =
   loadCSS: false
   runScripts: false
   site: 'http://scores.espn.go.com/ncb/'
-  userAgent: "Mozilla/5.0 (X11; U; Linux x86; en-US; rv:1.9.2.7) Gecko/20100809 Hi Firefox/3.6.7"
+  userAgent: "Mozilla/5.0 (X11; U; Linux x86; en-US; rv:1.9.2.7) Gecko/20100809 LOL Firefox/3.6.7"
 
 
 # Load Zepto into a browser instance. Zepto's way smaller than jQuery (there's
@@ -52,18 +53,56 @@ class Day
 # allows scraping multiple games and pages to be completely asynchronous.
 class Game
   constructor: (id) ->
+    return if _.isEmpty id
+    @data = {}
+    @scrape id
+
+  scrape: (id) ->
     boxscore = "boxscore?gameId=#{id}"
     plays = "playbyplay?gameId=#{id}"
-    zombie.visit plays, OPTIONS, @scrape
+    zombie.visit plays, OPTIONS, @plays
 
-  scrape: (error, browser) =>
+  plays: (error, browser) =>
     $ = Zepto(browser)
     rows = $('table.mod-pbp > tr')
     console.log rows.length
 
+  boxscore: (error, browser) =>
+    $ = Zepto(browser)
+
+
+# Extend scraped game output against a default object.
+class Output
+  constructor: (refined={}) ->
+    original =
+      attendance: null
+      conference:
+        game: null
+        name: null
+      date:
+        string: null
+      espn: null
+      final:
+        away: null
+        home: null
+      half:
+        away: null
+        home: null
+      location: null
+      overtime: false
+      plays: []
+      players:
+        away: []
+        home: []
+      totals:
+        away: null
+        home: null
+      winner: null
+    return _.extend original, refined
+
 
 id = '320072031'
-day = '20120107'
+day = '20120103'
 last = (games) ->
   return if _.isEmpty games
   console.log games.length
