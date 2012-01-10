@@ -1,6 +1,5 @@
 _ = require 'underscore'
 fs = require 'fs'
-repl = require 'repl'
 zombie = require 'zombie'
 
 # Database stuff.
@@ -62,7 +61,7 @@ class Game
       plays: "playbyplay?gameId=#{id}"
     @data = {}
     @period = 1
-    @scrape id
+    @scrape(id)
 
   # The scrape method is a little convoluted since the `Zombie.js` requests are
   # being sent asynchronously.
@@ -75,7 +74,36 @@ class Game
   boxscore: (browser) ->
     $ = Zepto(browser)
     tables = $('.mod-data > tbody')
-    console.log "#{tables.length} tables"
+    @scrape_stats $, tables
+
+  scrape_stats: ($, tables) ->
+    tables.each (index, table) =>
+      table = $(table)
+      rows = table.children()
+      if index in [0, 3]
+        # Make sure to recognize the starters.
+        rows.find('td > a').addClass('primary')
+      else if index in [2, 5]
+        # Get rid of the total percentages.
+        rows = $(rows.first())
+      rows.each (index, value) ->
+        stats = $(value).children()
+        first = stats.eq(0)
+        player = first.children('a')
+        if not _.isEmpty player
+          [name, starter] = [player.text(), player.hasClass('primary')]
+          player.remove()
+          position = first.html().match(/, (.*)/)[1]
+          console.log position.split('-')
+      switch index
+        when 0, 1
+          'away'
+        when 2
+          'away total'
+        when 3, 4
+          'home'
+        when 5
+          'home total'
 
   plays: (browser) ->
     $ = Zepto(browser)
@@ -191,14 +219,13 @@ class Output
     return _.extend original, refined
 
 
-id = '320072031'
-day = '20120103'
-last = (games) ->
-  return if _.isEmpty games
-  console.log games.length
-  last = _.last games
-  new Game(last)
-
 do ->
-  new Day day, last
-  new Game id
+  #day = '20120103'
+  #last = (games) ->
+    #return if _.isEmpty games
+    #console.log games.length
+    #game = _.last games
+    #new Game game
+  #new Day day, last
+  id = "320032539"
+  new Game(id)
