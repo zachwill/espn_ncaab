@@ -80,24 +80,30 @@ class Game
     tables.each (index, table) =>
       table = $(table)
       rows = table.children()
+      results = []
       if index in [0, 3]
-        # Make sure to recognize the starters.
+        # Make sure to recognize the starters. I think Zepto has a bug when
+        # using `addClass` and a class that starts with `s`. Weird.
         rows.find('td > a').addClass('primary')
       else if index in [2, 5]
         # Get rid of the total percentages.
         rows = $(rows.first())
       rows.each (index, value) ->
-        stats = $(value).children()
-        first = stats.eq(0)
-        player = first.children('a')
+        stats = {}
+        record = $(value)
+        first_td = record.children().eq(0)
+        player = first_td.children('a')
         if not _.isEmpty player
-          [name, starter] = [player.text(), player.hasClass('primary')]
+          first_td.remove()
           player.remove()
-          position = first.html().match(/, (.*)/)[1]
-          console.log position.split('-')
+          stats.name = player.text()
+          stats.starter = player.hasClass('primary')
+          match = first_td.html().match(/, (.*)/)[1]
+          stats.position = match.split('-')
+          results.push(stats)
       switch index
         when 0, 1
-          'away'
+          @data.away ?= results
         when 2
           'away total'
         when 3, 4
