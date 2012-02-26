@@ -3,8 +3,8 @@
   "author": "Zach Williams",
   "dependencies": {
     "coffee-script": "1.x.x",
+    "jsdom": "0.2.12",
     "mongous": "*",
-    "underscore": "*",
-    "zombie": "*"
+    "underscore": "*"
   }
 }

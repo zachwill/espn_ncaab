@@ -1,137 +1,98 @@
-_ = require 'underscore'
-fs = require 'fs'
-zombie = require 'zombie'
+_   = require 'underscore'
+fs  = require 'fs'
+dom = require 'jsdom'
 
-# Database stuff.
-db = require('mongous').Mongous
+# MongoDB ftw.
+# db = require('mongous').Mongous
 
-# Read in the static `Zepto.js` file synchronously. It will eventually be
-# evaluated by a `Zombie.js` browser instance.
-zepto = fs.readFileSync 'zepto.js', 'utf-8', (error, data) -> data
+# And let's read in jQuery.
+jquery = fs.readFileSync('./jquery.js').toString()
 
-# Browser options that will be used by Zombie.js when visiting the indiviudal
-# pages. No scripts or CSS should be loaded, and a Firefox 3.6.7 user-agent
-# string should be used.
-OPTIONS =
-  debug: true
-  loadCSS: false
-  runScripts: false
-  site: 'http://scores.espn.go.com/ncb/'
-  userAgent: "Mozilla/5.0 (X11; U; Linux x86; en-US; rv:1.9.2.7) Gecko/20100809 LOL Firefox/3.6.7"
+# Custom request headers -- mostly used for user agent spoofing.
+HEADERS =
+  'User-Agent': 'Mozilla/5.0 (X11; U; Linux x86; en-US; rv:1.9.2.7) Gecko/20100809 LOL Firefox/3.6.7'
 
 
-# Load Zepto into a browser instance. Zepto's way smaller than jQuery (there's
-# no need for the IE hacks now), but has much of the same syntax.
-class Zepto
-  constructor: (browser) ->
-    browser.evaluate "eval(#{zepto})"
-    return browser.window.$
-
-
-# Scrape all game ID's for a given day. These games can then be individually
-# scraped and saved to the database.
+# Scrape game IDs for a specific date (in YYYY-MM-DD format).
 class Day
-  constructor: (date, @callback) ->
-    scores = "scoreboard?date=#{date}&confId=50"
-    zombie.visit scores, OPTIONS, @scrape
+  constructor: (@date, @league='ncb') ->
+    @headers = HEADERS
 
-  scrape: (error, browser) =>
-    $ = Zepto(browser)
-    expand = $('.expand-gameLinks')
-    games = expand.map @match
-    if @callback
-      return @callback(games)
-    games
+  endpoint: ->
+    date = @date.replace(/-/g, '')
+    espn = "http://scores.espn.go.com/#{@league}/"
+    "#{espn}scoreboard?date=#{date}&confId=50"
 
-  # Use a regular expression to match a game's ID against an element's actual
-  # `id` attribute.
-  match: (index, game) ->
-    id = game.id.match(/[0-9]+/)
-    return id[0] unless _.isEmpty id
+  games: (@after, date) ->
+    if date?
+      @date = date
+    endpoint = @endpoint()
+    dom.env
+      html: endpoint
+      headers: @headers
+      src: [jquery]
+      done: @scrape_games
+
+  scrape_games: (error, window) =>
+    $ = window.$
+    links = $('.expand-gameLinks')
+    games = _(links).map (game) ->
+      id = game.id.match(/[0-9]+/)
+      return id[0] unless _.isEmpty id
+    if @after? then @after(games)
 
 
-# Scrape the necessary information from an individual game. Note that
-# `zombie.visit` is used -- which creates a one-off browser instance. This
-# allows scraping multiple games and pages to be completely asynchronous.
-class Game
-  constructor: (id) ->
-    return if _.isEmpty id
-    @url =
-      boxscore: "boxscore?gameId=#{id}"
-      plays: "playbyplay?gameId=#{id}"
-    @data = {}
-    @period = 1
-    @scrape(id)
+# A class that can be used to scrape play-by-plays and boxscores from ESPN for
+# all NCAA Men's Basketball games.
+class NCB
+  constructor: (@id) ->
+    @headers = HEADERS
+    @_period = 1
 
-  # The scrape method is a little convoluted since the `Zombie.js` requests are
-  # being sent asynchronously.
-  scrape: (id) ->
-    zombie.visit @url.plays, OPTIONS, (error, browser) =>
-      @data.plays = @plays browser
-      browser.visit @url.boxscore, (error, browser) =>
-        @boxscore browser
+  endpoints: ->
+    box: "boxscore?gameId=#{@id}"
+    espn: "http://scores.espn.go.com/ncb/"
+    play: "playbyplay?gameId=#{@id}"
 
-  boxscore: (browser) ->
-    $ = Zepto(browser)
-    tables = $('.mod-data > tbody')
-    @scrape_stats $, tables
+  # Scrape the game's play-by-play data. A callback can be passed to this
+  # function that will then be executed after the scraping.
+  plays: (@after) ->
+    # Just make sure that the period is 1.
+    @_period = 1
+    url = @endpoints()
+    [espn, play] = [url.espn, url.play]
+    dom.env
+      html: "#{espn}#{play}"
+      headers: @headers
+      src: [jquery]
+      done: @scrape_plays
 
-  scrape_stats: ($, tables) ->
-    tables.each (index, table) =>
-      table = $(table)
-      rows = table.children()
-      results = []
-      if index in [0, 3]
-        # Make sure to recognize the starters. I think Zepto has a bug when
-        # using `addClass` and a class that starts with `s`. Weird.
-        rows.find('td > a').addClass('primary')
-      else if index in [2, 5]
-        # Get rid of the total percentages.
-        rows = $(rows.first())
-      rows.each (index, value) ->
-        stats = {}
-        record = $(value)
-        first_td = record.children().eq(0)
-        player = first_td.children('a')
-        if not _.isEmpty player
-          first_td.remove()
-          player.remove()
-          stats.name = player.text()
-          stats.starter = player.hasClass('primary')
-          match = first_td.html().match(/, (.*)/)[1]
-          stats.position = match.split('-')
-          results.push(stats)
-      switch index
-        when 0, 1
-          @data.away ?= results
-        when 2
-          'away total'
-        when 3, 4
-          'home'
-        when 5
-          'home total'
-
-  plays: (browser) ->
-    $ = Zepto(browser)
-    rows = $('table.mod-pbp > tr')
+  # Actual method that scrapes the play-by-by table rows.
+  scrape_plays: (error, window) =>
+    $ = window.$
+    rows = $('.mod-data > tr')
     console.log rows.length
-    rows.map (index, row) =>
+    data = _(rows).map (row) =>
       row = $(row)
       children = row.children()
       length = children.length
       bold = children.find('b')
-      if not _.isEmpty bold
+      if not _.isEmpty bold.html()
+        # Then remove the bold element.
         text = bold.text()
         bold.parent().append(text).end().remove()
         if length is 4
           scored = true
       if length is 4
-        play = children.map @outcome
+        play = _(children).map @outcome
       else
-        play = children.map (index, element) -> element.innerHTML
+        play = _(children).map (element) -> element.innerHTML
       @create_play play, scored
+    if @after? then @after(data)
 
-  outcome: (index, element) ->
+  # Get the individual outcome for individual plays. Also, calculate the
+  # difference between the home and away teams' current scores.
+  outcome: (element, index) ->
     html = element.innerHTML
     if index is 0
       return html
@@ -141,9 +102,9 @@ class Game
       [away, home] = html.split('-')
       diff = Math.abs(away - home)
       html =
-        away: away
-        diffence: diff
-        home: home
+        away: Number(away)
+        difference: diff
+        home: Number(home)
     html
 
   create_play: (play, scored=false) ->
@@ -154,32 +115,33 @@ class Game
       [away, home, score] = [null, null, null]
       if text.match('End of the')
         update = true
-    else if _.isString play[1]
-      [time, away, score] = play
-      [text, home] = [away, null]
     else
-      [time, score, home] = play
-      [text, away] = [home, null]
+      [time, away, score, home] = play
+      if _.isString away
+        text = away
+      else
+        text = home
     time = @update_time(time)
     data =
       action:
         scored: scored
         text: text
-      period: @period
+      period: @_period
       play:
         away: away
         home: home
         official: official
       score: score
       time: time
-    if update then @period += 1
+    if update then @_period += 1
     data
 
   update_time: (time) ->
-    if @period > 2
-      overall = (@period - 2) * 5 + 40
+    period = @_period
+    if period > 2
+      overall = (period - 2) * 5 + 40
     else
-      overall = @period * 20
+      overall = period * 20
     [minutes, seconds] = _(time.split(':')).map (value) -> +value
     minutes = overall - minutes
     if seconds isnt 0
@@ -188,50 +150,12 @@ class Game
     if seconds < 10
       seconds = '0' + seconds
     elapsed = "#{minutes}:#{seconds}"
-    return {
-      elapsed: elapsed
-      game: time
-    }
-
-
-# Extend scraped game output against a default object.
-# TODO: Refactor this to a `Save` class without the large `original` object.
-class Output
-  constructor: (refined={}) ->
-    original =
-      attendance: null
-      conference:
-        game: null
-        name: null
-      date:
-        string: null
-      espn: null
-      final:
-        away: null
-        home: null
-      half:
-        away: null
-        home: null
-      location: null
-      overtime: false
-      plays: []
-      players:
-        away: []
-        home: []
-      totals:
-        away: null
-        home: null
-      winner: null
-    return _.extend original, refined
+    return elapsed: elapsed, game: time
 
 
 do ->
-  #day = '20120103'
-  #last = (games) ->
-    #return if _.isEmpty games
-    #console.log games.length
-    #game = _.last games
-    #new Game game
-  #new Day day, last
-  id = "320032539"
-  new Game(id)
+  ncb = new NCB("320032539")
+  ncb.plays (data) ->
+    fs.writeFileSync "320032539.plays.json", JSON.stringify(data)
+  #day = new Day('2012-02-22')
+  #day.games (games) -> console.log games

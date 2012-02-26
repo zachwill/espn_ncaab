@@ -3,8 +3,7 @@ ESPN NCAAB
 
 Asynchronously scrape ESPN college basketball scores using
 [Node.js](http://nodejs.org/), [CoffeeScript](http://coffeescript.org),
-[Zepto](http://zeptojs.com/),and
-[Zombie.js](http://zombie.labnotes.org/API.html).
+[jQuery](http://jquery.com/), and [jsdom](https://github.com/tmpvar/jsdom).
 
 [MongoDB](http://www.mongodb.org/) will be used as the database.
 
