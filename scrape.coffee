@@ -102,9 +102,9 @@ class NCB
       [away, home] = html.split('-')
       diff = Math.abs(away - home)
       html =
-        away: Number(away)
+        away: +away
         difference: diff
-        home: Number(home)
+        home: +home
     html
 
   create_play: (play, scored=false) ->
