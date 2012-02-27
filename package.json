@@ -4,6 +4,7 @@
   "dependencies": {
     "coffee-script": "1.x.x",
     "jsdom": "0.2.12",
+    "moment": "*",
     "mongous": "*",
     "underscore": "*"
   }
