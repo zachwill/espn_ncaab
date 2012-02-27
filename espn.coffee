@@ -153,9 +153,5 @@ class NCB
     return elapsed: elapsed, game: time
 
 
-do ->
-  ncb = new NCB("320032539")
-  ncb.plays (data) ->
-    fs.writeFileSync "320032539.plays.json", JSON.stringify(data)
-  #day = new Day('2012-02-22')
-  #day.games (games) -> console.log games
+exports.Day = Day
+exports.NCB = NCB
