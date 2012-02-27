@@ -1,5 +1,10 @@
 {
   "attendance": 3888,
+  "box" : {
+    "away": [20, 38],
+    "difference": [2, 2],
+    "home": [22, 40]
+  },
   "conference": {
     "game": true,
     "name": "Sun Belt"
@@ -101,7 +106,7 @@
           "three": {
             "a": 0,
             "m": 0
-          },
+          }
         }
       },
       {
