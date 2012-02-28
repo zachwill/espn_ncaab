@@ -154,7 +154,7 @@ scrape_box = (error, window) ->
   box.eq(4).children().appendTo(teams.home)
 
   # Alright, let's get individual player stats.
-  for loc, team of teams
+  for location, team of teams
     rows = team.children()
     data = _(rows).map (row, index) ->
       out = {}
@@ -177,7 +177,7 @@ scrape_box = (error, window) ->
       [out.ast, out.stl] = [numbers[9], numbers[10]]
       [out.blk, out.to] = [numbers[11], numbers[12]]
       [out.pf, out.pts] = [numbers[13], numbers[14]]
-      store.players[loc].push(out)
+      store.players[location].push(out)
 
   # And let's return all that data.
   return store
