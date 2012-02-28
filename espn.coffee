@@ -2,6 +2,9 @@ _   = require 'underscore'
 fs  = require 'fs'
 dom = require 'jsdom'
 
+# Date library.
+moment = require 'moment'
+
 # MongoDB ftw.
 # db = require('mongous').Mongous
 
@@ -10,7 +13,22 @@ jquery = fs.readFileSync('./jquery.js').toString()
 
 # Custom request headers -- mostly used for user agent spoofing.
 HEADERS =
-  'User-Agent': 'Mozilla/5.0 (X11; U; Linux x86; en-US; rv:1.9.2.7) Gecko/20100809 LOL Firefox/3.6.7'
+  'User-Agent': 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/533.21.1 (KHTML, like Gecko) Version/5.0.5 Safari/533.21.1'
+
+
+# Generate an array of 'YYYY-MM-DD' dates that exist between and include
+# two other dates in 'YYYY-MM-DD' or 'MM-DD-YYYY' format.
+between = (start, end) ->
+  days = []
+  start = moment(start, ['YYYY-MM-DD', 'MM-DD-YYYY'])
+  end = moment(end, ['YYYY-MM-DD', 'MM-DD-YYYY'])
+  if start > end
+    [start, end] = [end, start]
+  while start <= end
+    format = start.format('YYYY-MM-DD')
+    days.push format
+    start.add('days', 1)
+  days
 
 
 # Scrape game IDs for a specific date (in YYYY-MM-DD format).
@@ -153,5 +171,6 @@ class NCB
     return elapsed: elapsed, game: time
 
 
+exports.between = between
 exports.Day = Day
 exports.NCB = NCB
