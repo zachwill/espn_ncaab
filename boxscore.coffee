@@ -13,6 +13,7 @@ scrape_box = (error, window) ->
     attendance: 0
     box: away: null, home: null
     conference: {}
+    coverage: null
     date: {}
     final: away: null, home: null
     half: away: null, home: null
@@ -32,18 +33,21 @@ scrape_box = (error, window) ->
   store.teams.away.name = away
   store.teams.home.name = home
 
-  # Now, time and location.
+  # Now for time and location.
   info = $('.game-time-location > p')
   location = info.eq(1).text()
   store.location = location
   time = info.eq(0).text().split(',')
-  [time, day] = [time.shift(), time.join(',')]
+  [time, day] = [time.shift(), $.trim(time.join(','))]
   date_string = "#{day} #{time}"
   store.date =
     time: time,
     day: day,
     string: date_string,
     epoch: +moment(date_string, 'MMMM D, YYYY h:mm A zz')
+  # And see if it was on TV.
+  coverage = $('.game-vitals > p > strong').text() or null
+  store.coverage = coverage
 
   # Then grab the line score.
   line = $('table.linescore')

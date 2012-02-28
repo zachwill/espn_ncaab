@@ -9,6 +9,7 @@
     "game": true,
     "name": "Sun Belt"
   },
+  "coverage": "ESPN/ESPN3",
   "date": {
     "day": "January 7, 2012",
     "epoch": 1325984400000,
