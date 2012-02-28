@@ -2,14 +2,11 @@ _   = require 'underscore'
 fs  = require 'fs'
 dom = require 'jsdom'
 
-# Date library.
 moment = require 'moment'
+jquery = fs.readFileSync('./jquery.js').toString()
 
 # MongoDB ftw.
 # db = require('mongous').Mongous
-
-# And let's read in jQuery.
-jquery = fs.readFileSync('./jquery.js').toString()
 
 # Custom request headers -- mostly used for user agent spoofing.
 HEADERS =
