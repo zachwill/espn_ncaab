@@ -2,6 +2,7 @@ _   = require 'underscore'
 fs  = require 'fs'
 dom = require 'jsdom'
 
+moment = require 'moment'
 jquery = fs.readFileSync('./jquery.js').toString()
 
 scrape_box = (error, window) ->
@@ -34,9 +35,15 @@ scrape_box = (error, window) ->
   # Now, time and location.
   info = $('.game-time-location > p')
   location = info.eq(1).text()
-  time = info.eq(0).text().split(',')
-  [time, date] = [time.shift(), time.join(',')]
   store.location = location
+  time = info.eq(0).text().split(',')
+  [time, day] = [time.shift(), time.join(',')]
+  date_string = "#{day} #{time}"
+  store.date =
+    time: time,
+    day: day,
+    string: date_string,
+    epoch: +moment(date_string, 'MMMM D, YYYY h:mm A zz')
 
   # Then grab the line score.
   line = $('table.linescore')
@@ -58,7 +65,6 @@ scrape_box = (error, window) ->
       final = +final
     store.teams[team_name].abbrev = data.shift()
     store.final[team_name] = final
-    data = [+num for num in data]
     store.box[team_name] = data
     # And, did the game go into overtime?
     if data.length > 2
