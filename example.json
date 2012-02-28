@@ -82,31 +82,29 @@
     "away": [
       {
         "name": "Kore White",
-        "position": "F",
+        "position": ["F"],
         "starter": true,
-        "stats": {
-          "ast": 1,
-          "blk": 0,
-          "fg": {
-            "a": 12,
-            "m": 7
-          },
-          "ft": {
-            "a": 4,
-            "m": 3
-          },
-          "min": 32,
-          "pf": 3,
-          "pts": 17,
-          "reb": {
-            "o": 2,
-            "total": 7
-          },
-          "stl": 1,
-          "three": {
-            "a": 0,
-            "m": 0
-          }
+        "ast": 1,
+        "blk": 0,
+        "fg": {
+          "a": 12,
+          "m": 7
+        },
+        "ft": {
+          "a": 4,
+          "m": 3
+        },
+        "min": 32,
+        "pf": 3,
+        "pts": 17,
+        "reb": {
+          "o": 2,
+          "total": 7
+        },
+        "stl": 1,
+        "three": {
+          "a": 0,
+          "m": 0
         }
       },
       {

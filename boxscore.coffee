@@ -18,6 +18,7 @@ scrape_box = (error, window) ->
     final: away: null, home: null
     half: away: null, home: null
     location: null
+    players: away: [], home: []
     teams:
       away:
         abbrev: null, name: null
@@ -145,10 +146,38 @@ scrape_box = (error, window) ->
     [totals.pf, totals.pts] = [data[12], data[13]]
 
   # Append players to one table per team.
-  [away, home] = [box.eq(0), box.eq(3)]
-  box.eq(1).children().appendTo(away)
-  box.eq(4).children().appendTo(home)
+  teams = {}
+  [teams.away, teams.home] = [box.eq(0), box.eq(3)]
+  box.eq(1).children().appendTo(teams.away)
+  box.eq(4).children().appendTo(teams.home)
 
+  # Alright, let's get individual player stats.
+  for loc, team of teams
+    rows = team.children()
+    data = _(rows).map (row, index) ->
+      out = {}
+      row = $(row)
+      stats = row.children()
+      player = stats.eq(0).remove()
+      [name, pos] = player.text().split(', ')
+      [out.name, out.position] = [name, pos.split('-')]
+      out.starter = row.hasClass('starter')
+      # Now the rest of stats are numbers.
+      numbers = _(stats).map (stat) ->
+        list = $(stat).text().split('-')
+        [+num for num in list]
+      numbers = _.flatten(numbers)
+      out.min = numbers[0]
+      out.fg = m: numbers[1], a: numbers[2]
+      out.three = m: numbers[3], a: numbers[4]
+      out.ft = m: numbers[5], a: numbers[6]
+      out.reb = o: numbers[7], total: numbers[8]
+      [out.ast, out.stl] = [numbers[9], numbers[10]]
+      [out.blk, out.to] = [numbers[11], numbers[12]]
+      [out.pf, out.pts] = [numbers[13], numbers[14]]
+      store.players[loc].push(out)
+
+  # And let's return all that data.
   console.log store
 
 dom.env
