@@ -95,6 +95,8 @@ scrape_box = (error, window) ->
   _(misc).each (element, index) ->
     text = $.trim(element.nextSibling.data)
     if index is 0
+      if text is "None"
+        text = null
       store.technicals = text
     else if index is 1
       store.officals = text.split(', ')

@@ -10,10 +10,9 @@
     "name": "Sun Belt"
   },
   "date": {
-    "epoch": 1326859200000,
-    "json": "2012-01-18T04:00:00.000Z",
-    "proper": "January 7, 2012 20:00",
-    "string": "January 7, 2012",
+    "day": "January 7, 2012",
+    "epoch": 1325984400000,
+    "string": "January 7, 2012 8:00 PM ET",
     "time": "8:00 PM ET"
   },
   "espn": "320072031",
@@ -182,5 +181,6 @@
       "to": 18
     }
   },
+  "technicals": null,
   "winner": "home"
 }
