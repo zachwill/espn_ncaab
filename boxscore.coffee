@@ -5,6 +5,8 @@ dom = require 'jsdom'
 moment = require 'moment'
 jquery = fs.readFileSync('./jquery.js').toString()
 
+
+# As neat a function as I can make to scrape box scores.
 scrape_box = (error, window) ->
   $ = window.$
 
@@ -178,9 +180,11 @@ scrape_box = (error, window) ->
       store.players[loc].push(out)
 
   # And let's return all that data.
-  console.log store
+  return store
+
 
 dom.env
-  html: "./box.html"
+  html: "./html/box.html"
   src: [jquery]
-  done: scrape_box
+  done: (error, window) ->
+    console.log scrape_box(error, window)
