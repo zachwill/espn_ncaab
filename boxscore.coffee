@@ -7,11 +7,15 @@ jquery = fs.readFileSync('./jquery.js').toString()
 
 
 class Boxscores
-  constructor: (@url) ->
+  constructor: (@id) ->
 
-  boxscores: (@callback) ->
+  endpoints: ->
+    box: @id
+
+  boxscores: (@_callback) ->
+    url = @endpoints()
     dom.env
-      html: @url
+      html: url.box
       src: [jquery]
       done: @scrape_box
 
@@ -189,7 +193,7 @@ class Boxscores
         store.players[location].push(out)
 
     # And let's pass all the data to the callback function.
-    if @callback? then @callback(store)
+    if @_callback? then @_callback(store)
 
 
 do ->
