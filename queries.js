@@ -41,3 +41,17 @@ db.ncb.group({
     return average(out.games)
   }
 })
+
+// Find those with a date.
+db.ncb.group({
+  initial: {
+    count: 0,
+    id: []
+  },
+  reduce: function(doc, out) {
+    if (doc.date) {
+      out.id.push(doc.espn)
+      out.count += 1
+    }
+  }
+})
