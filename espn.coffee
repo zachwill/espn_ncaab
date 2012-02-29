@@ -23,7 +23,7 @@ between = (start, end) ->
     [start, end] = [end, start]
   while start <= end
     format = start.format('YYYY-MM-DD')
-    days.push format
+    days.push(format)
     start.add('days', 1)
   days
 
