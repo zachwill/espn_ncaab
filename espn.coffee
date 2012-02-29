@@ -95,6 +95,7 @@ class Boxscore
   scrape_box: (error, window) =>
     $ = window.$
     store = @data_store()
+    console.log window.location.search
 
     # First, let's get the team names.
     team = $('.matchup > .team')
@@ -229,8 +230,11 @@ class Boxscore
         stats = row.children()
         player = stats.eq(0).remove()
         [name, pos] = player.text().split(', ')
-        [out.name, out.position] = [name, pos.split('-')]
+        if pos?
+          pos = pos.split('-')
+        [out.name, out.position] = [name, pos]
         out.starter = row.hasClass('starter')
+
         # Now the rest of stats are numbers.
         numbers = _(stats).map (stat) ->
           list = $(stat).text().split('-')
