@@ -65,7 +65,7 @@ class Boxscore
   endpoints: ->
     box: @id
 
-  boxscores: (@_callback) ->
+  boxscore: (@_callback) ->
     url = @endpoints()
     dom.env
       html: url.box
@@ -371,6 +371,6 @@ class NCB extends Boxscore
 
 
 exports.between = between
-exports.Boxscores = Boxscores
+exports.Boxscore = Boxscore
 exports.Day = Day
 exports.NCB = NCB
