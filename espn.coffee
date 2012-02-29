@@ -58,7 +58,7 @@ class Day
 
 
 # A class that can scrape ESPN boxscores.
-class Boxscores
+class Boxscore
   constructor: (@id) ->
     @headers = HEADERS
 
@@ -251,7 +251,7 @@ class Boxscores
 
 # A class that can be used to scrape play-by-plays and boxscores from ESPN for
 # all NCAA Men's Basketball games.
-class NCB extends Boxscores
+class NCB extends Boxscore
   constructor: (@id) ->
     @headers = HEADERS
     @_period = 1
